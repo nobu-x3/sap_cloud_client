@@ -43,3 +43,11 @@
 build
 .vscode
 .vs
+local.properties
+gradle
+.idea
+.claude
+.gradle
+android/.cxx
+.qtcreator
+android/.idea

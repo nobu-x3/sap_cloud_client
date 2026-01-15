@@ -1,0 +1,19 @@
+<RCC>
+    <qresource prefix="/">
+        <file>icons/drive.svg</file>
+        <file>icons/notes.svg</file>
+        <file>icons/settings.svg</file>
+        <file>icons/menu.svg</file>
+        <file>icons/chevron_left.svg</file>
+        <file>icons/chevron_right.svg</file>
+        <file>icons/upload.svg</file>
+        <file>icons/download.svg</file>
+        <file>icons/delete.svg</file>
+        <file>icons/info.svg</file>
+        <file>icons/plus.svg</file>
+        <file>icons/search.svg</file>
+        <file>icons/save.svg</file>
+        <file>icons/preview.svg</file>
+        <file>icons/edit.svg</file>
+    </qresource>
+</RCC>

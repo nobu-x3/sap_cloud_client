@@ -39,7 +39,6 @@ namespace sap::client {
         void load_note(const QString& id);
         void clear_editor();
         void save_current_note();
-        QString render_markdown(const QString& md);
         void update_word_count();
         void show_empty_state();
         void hide_empty_state();

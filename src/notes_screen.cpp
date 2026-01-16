@@ -244,6 +244,7 @@ namespace sap::client {
 
         m_Preview = new QTextBrowser(this);
         m_Preview->setOpenExternalLinks(true);
+        m_Preview->document()->setDefaultStyleSheet(get_markdown_preview_style());
 
         m_EditorStack->addWidget(m_Editor);
         m_EditorStack->addWidget(m_Preview);
@@ -350,7 +351,7 @@ namespace sap::client {
 
             // Update preview if in preview mode
             if (m_PreviewMode) {
-                m_Preview->setHtml(render_markdown(note.content));
+                m_Preview->setMarkdown(note.content);
             }
 
             update_word_count();
@@ -499,7 +500,8 @@ namespace sap::client {
         m_PreviewMode = !m_PreviewMode;
 
         if (m_PreviewMode) {
-            m_Preview->setHtml(render_markdown(m_Editor->toPlainText()));
+            // Use Qt's native markdown support
+            m_Preview->setMarkdown(m_Editor->toPlainText());
             m_EditorStack->setCurrentWidget(m_Preview);
             m_PreviewBtn->setIcon(QIcon(":/icons/edit.svg"));
             m_PreviewBtn->setToolTip("Edit");
@@ -551,7 +553,7 @@ namespace sap::client {
 
         // Update preview in real-time if in preview mode
         if (m_PreviewMode) {
-            m_Preview->setHtml(render_markdown(m_Editor->toPlainText()));
+            m_Preview->setMarkdown(m_Editor->toPlainText());
         }
     }
 
@@ -575,75 +577,6 @@ namespace sap::client {
         if (m_PreviewMode) {
             on_toggle_preview();
         }
-    }
-
-    QString NotesScreen::render_markdown(const QString& md) {
-        QString html = md.toHtmlEscaped();
-
-        // Code blocks (```...```) - must be first
-        html.replace(QRegularExpression("```(\\w*)\\n([\\s\\S]*?)```"), "<pre><code class=\"language-\\1\">\\2</code></pre>");
-
-        // Headers (# ## ###)
-        html.replace(QRegularExpression("^###### (.+)$", QRegularExpression::MultilineOption), "<h6>\\1</h6>");
-        html.replace(QRegularExpression("^##### (.+)$", QRegularExpression::MultilineOption), "<h5>\\1</h5>");
-        html.replace(QRegularExpression("^#### (.+)$", QRegularExpression::MultilineOption), "<h4>\\1</h4>");
-        html.replace(QRegularExpression("^### (.+)$", QRegularExpression::MultilineOption), "<h3>\\1</h3>");
-        html.replace(QRegularExpression("^## (.+)$", QRegularExpression::MultilineOption), "<h2>\\1</h2>");
-        html.replace(QRegularExpression("^# (.+)$", QRegularExpression::MultilineOption), "<h1>\\1</h1>");
-
-        // Bold and italic
-        html.replace(QRegularExpression("\\*\\*\\*(.+?)\\*\\*\\*"), "<strong><em>\\1</em></strong>");
-        html.replace(QRegularExpression("___(.+?)___"), "<strong><em>\\1</em></strong>");
-        html.replace(QRegularExpression("\\*\\*(.+?)\\*\\*"), "<strong>\\1</strong>");
-        html.replace(QRegularExpression("__(.+?)__"), "<strong>\\1</strong>");
-        html.replace(QRegularExpression("\\*(.+?)\\*"), "<em>\\1</em>");
-        html.replace(QRegularExpression("_(.+?)_"), "<em>\\1</em>");
-
-        // Strikethrough
-        html.replace(QRegularExpression("~~(.+?)~~"), "<del>\\1</del>");
-
-        // Inline code
-        html.replace(QRegularExpression("`([^`]+)`"), "<code>\\1</code>");
-
-        // Links [text](url)
-        html.replace(QRegularExpression("\\[([^\\]]+)\\]\\(([^)]+)\\)"), "<a href=\"\\2\">\\1</a>");
-
-        // Images ![alt](url)
-        html.replace(QRegularExpression("!\\[([^\\]]*)]\\(([^)]+)\\)"), "<img alt=\"\\1\" src=\"\\2\" />");
-
-        // Blockquotes
-        html.replace(QRegularExpression("^&gt; (.+)$", QRegularExpression::MultilineOption), "<blockquote>\\1</blockquote>");
-
-        // Unordered lists
-        html.replace(QRegularExpression("^[\\*\\-\\+] (.+)$", QRegularExpression::MultilineOption), "<li>\\1</li>");
-
-        // Ordered lists
-        html.replace(QRegularExpression("^\\d+\\. (.+)$", QRegularExpression::MultilineOption), "<li>\\1</li>");
-
-        // Wrap consecutive <li> in <ul>
-        html.replace(QRegularExpression("(<li>.*</li>\\n?)+"), "<ul>\\0</ul>");
-
-        // Task lists
-        html.replace(QRegularExpression("<li>\\[ \\] (.+)</li>"),
-                     "<li class=\"task-list-item\"><input type=\"checkbox\" disabled> \\1</li>");
-        html.replace(QRegularExpression("<li>\\[x\\] (.+)</li>", QRegularExpression::CaseInsensitiveOption),
-                     "<li class=\"task-list-item\"><input type=\"checkbox\" checked disabled> \\1</li>");
-
-        // Horizontal rules
-        html.replace(QRegularExpression("^---$", QRegularExpression::MultilineOption), "<hr>");
-        html.replace(QRegularExpression("^\\*\\*\\*$", QRegularExpression::MultilineOption), "<hr>");
-        html.replace(QRegularExpression("^___$", QRegularExpression::MultilineOption), "<hr>");
-
-        // Paragraphs (double newlines)
-        html.replace(QRegularExpression("\n\n"), "</p><p>");
-
-        // Single newlines to <br> (but not in code blocks)
-        html.replace(QRegularExpression("(?<!>)\n(?!<)"), "<br>\n");
-
-        // Clean up empty paragraphs
-        html.replace("<p></p>", "");
-
-        return QString("<html><head>%1</head><body><p>%2</p></body></html>").arg(get_markdown_preview_style(), html);
     }
 
 } // namespace sap::client

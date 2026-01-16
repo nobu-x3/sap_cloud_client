@@ -155,39 +155,78 @@ namespace sap::client {
         });
         editor_header->addWidget(m_Title, 1);
 
+        auto icon_button_style = R"(
+            QPushButton {
+                background-color: #2a2a4a;
+                border: none;
+                border-radius: 8px;
+                padding: 8px;
+            }
+            QPushButton:hover {
+                background-color: #3a3a5a;
+            }
+            QPushButton:pressed {
+                background-color: #4a4a6a;
+            }
+            QPushButton:checked {
+                background-color: #4a4ae8;
+            }
+            QPushButton:disabled {
+                background-color: #1a1a2a;
+                opacity: 0.5;
+            }
+        )";
+
+        auto danger_button_style = R"(
+            QPushButton {
+                background-color: #2a2a4a;
+                border: none;
+                border-radius: 8px;
+                padding: 8px;
+            }
+            QPushButton:hover {
+                background-color: #4a2a2a;
+            }
+            QPushButton:pressed {
+                background-color: #6a3a3a;
+            }
+            QPushButton:disabled {
+                background-color: #1a1a2a;
+                opacity: 0.5;
+            }
+        )";
+
         // Editor toolbar
-        m_PreviewBtn = new QPushButton("Preview", this);
+        m_PreviewBtn = new QPushButton(this);
         m_PreviewBtn->setIcon(QIcon(":/icons/preview.svg"));
-        m_PreviewBtn->setObjectName("secondary_button");
+        m_PreviewBtn->setIconSize(QSize(20, 20));
+        m_PreviewBtn->setFixedSize(36, 36);
         m_PreviewBtn->setCursor(Qt::PointingHandCursor);
+        m_PreviewBtn->setToolTip("Preview");
         m_PreviewBtn->setCheckable(true);
+        m_PreviewBtn->setStyleSheet(icon_button_style);
         connect(m_PreviewBtn, &QPushButton::clicked, this, &NotesScreen::on_toggle_preview);
         editor_header->addWidget(m_PreviewBtn);
 
-        m_SaveBtn = new QPushButton("Save", this);
+        m_SaveBtn = new QPushButton(this);
         m_SaveBtn->setIcon(QIcon(":/icons/save.svg"));
+        m_SaveBtn->setIconSize(QSize(20, 20));
+        m_SaveBtn->setFixedSize(36, 36);
         m_SaveBtn->setCursor(Qt::PointingHandCursor);
+        m_SaveBtn->setToolTip("Save");
+        m_SaveBtn->setStyleSheet(icon_button_style);
         m_SaveBtn->setEnabled(false);
         connect(m_SaveBtn, &QPushButton::clicked, this, &NotesScreen::on_save_note);
         editor_header->addWidget(m_SaveBtn);
 
         m_DeleteBtn = new QPushButton(this);
         m_DeleteBtn->setIcon(QIcon(":/icons/delete.svg"));
-        m_DeleteBtn->setObjectName("icon_button");
+        m_DeleteBtn->setIconSize(QSize(20, 20));
+        m_DeleteBtn->setFixedSize(36, 36);
         m_DeleteBtn->setCursor(Qt::PointingHandCursor);
+        m_DeleteBtn->setToolTip("Delete");
+        m_DeleteBtn->setStyleSheet(danger_button_style);
         m_DeleteBtn->setEnabled(false);
-        m_DeleteBtn->setToolTip("Delete note");
-        m_DeleteBtn->setStyleSheet(R"(
-        QPushButton#icon_button {
-            background-color: transparent;
-            border: none;
-            padding: 8px;
-        }
-        QPushButton#icon_button:hover {
-            background-color: #e84a4a33;
-            border-radius: 6px;
-        }
-    )");
         connect(m_DeleteBtn, &QPushButton::clicked, this, &NotesScreen::on_delete_note);
         editor_header->addWidget(m_DeleteBtn);
 
@@ -463,12 +502,12 @@ namespace sap::client {
             m_Preview->setHtml(render_markdown(m_Editor->toPlainText()));
             m_EditorStack->setCurrentWidget(m_Preview);
             m_PreviewBtn->setIcon(QIcon(":/icons/edit.svg"));
-            m_PreviewBtn->setText("Edit");
+            m_PreviewBtn->setToolTip("Edit");
             m_PreviewBtn->setChecked(true);
         } else {
             m_EditorStack->setCurrentWidget(m_Editor);
             m_PreviewBtn->setIcon(QIcon(":/icons/preview.svg"));
-            m_PreviewBtn->setText("Preview");
+            m_PreviewBtn->setToolTip("Preview");
             m_PreviewBtn->setChecked(false);
         }
     }

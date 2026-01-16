@@ -56,29 +56,80 @@ namespace sap::client {
         auto* toolbar = new QHBoxLayout();
         toolbar->setSpacing(12);
 
-        m_UploadBtn = new QPushButton("Upload", this);
+        auto icon_button_style = R"(
+            QPushButton {
+                background-color: #2a2a4a;
+                border: none;
+                border-radius: 8px;
+                padding: 8px;
+            }
+            QPushButton:hover {
+                background-color: #3a3a5a;
+            }
+            QPushButton:pressed {
+                background-color: #4a4a6a;
+            }
+            QPushButton:disabled {
+                background-color: #1a1a2a;
+                opacity: 0.5;
+            }
+        )";
+
+        auto danger_button_style = R"(
+            QPushButton {
+                background-color: #2a2a4a;
+                border: none;
+                border-radius: 8px;
+                padding: 8px;
+            }
+            QPushButton:hover {
+                background-color: #4a2a2a;
+            }
+            QPushButton:pressed {
+                background-color: #6a3a3a;
+            }
+            QPushButton:disabled {
+                background-color: #1a1a2a;
+                opacity: 0.5;
+            }
+        )";
+
+        m_UploadBtn = new QPushButton(this);
         m_UploadBtn->setIcon(QIcon(":/icons/upload.svg"));
+        m_UploadBtn->setIconSize(QSize(20, 20));
+        m_UploadBtn->setFixedSize(36, 36);
         m_UploadBtn->setCursor(Qt::PointingHandCursor);
+        m_UploadBtn->setToolTip("Upload");
+        m_UploadBtn->setStyleSheet(icon_button_style);
         connect(m_UploadBtn, &QPushButton::clicked, this, &DriveScreen::on_upload);
 
-        m_DownloadBtn = new QPushButton("Download", this);
+        m_DownloadBtn = new QPushButton(this);
         m_DownloadBtn->setIcon(QIcon(":/icons/download.svg"));
-        m_DownloadBtn->setObjectName("secondary_button");
+        m_DownloadBtn->setIconSize(QSize(20, 20));
+        m_DownloadBtn->setFixedSize(36, 36);
         m_DownloadBtn->setCursor(Qt::PointingHandCursor);
+        m_DownloadBtn->setToolTip("Download");
+        m_DownloadBtn->setStyleSheet(icon_button_style);
         m_DownloadBtn->setEnabled(false);
         connect(m_DownloadBtn, &QPushButton::clicked, this, &DriveScreen::on_download);
 
-        m_DeleteBtn = new QPushButton("Delete", this);
+        m_DeleteBtn = new QPushButton(this);
         m_DeleteBtn->setIcon(QIcon(":/icons/delete.svg"));
-        m_DeleteBtn->setObjectName("danger_button");
+        m_DeleteBtn->setIconSize(QSize(20, 20));
+        m_DeleteBtn->setFixedSize(36, 36);
         m_DeleteBtn->setCursor(Qt::PointingHandCursor);
+        m_DeleteBtn->setToolTip("Delete");
+        m_DeleteBtn->setStyleSheet(danger_button_style);
         m_DeleteBtn->setEnabled(false);
         connect(m_DeleteBtn, &QPushButton::clicked, this, &DriveScreen::on_delete);
 
-        m_InfoBtn = new QPushButton("Info", this);
+        m_InfoBtn = new QPushButton(this);
         m_InfoBtn->setIcon(QIcon(":/icons/info.svg"));
-        m_InfoBtn->setObjectName("secondary_button");
+        m_InfoBtn->setIconSize(QSize(20, 20));
+        m_InfoBtn->setFixedSize(36, 36);
         m_InfoBtn->setCursor(Qt::PointingHandCursor);
+        m_InfoBtn->setToolTip("Info");
+        m_InfoBtn->setStyleSheet(icon_button_style);
         m_InfoBtn->setEnabled(false);
         connect(m_InfoBtn, &QPushButton::clicked, this, &DriveScreen::on_info);
 

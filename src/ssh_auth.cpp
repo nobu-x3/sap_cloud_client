@@ -3,7 +3,6 @@
 #include <QFile>
 #include <openssl/bio.h>
 #include <openssl/buffer.h>
-#include <openssl/core_names.h>
 #include <openssl/evp.h>
 #include <openssl/pem.h>
 

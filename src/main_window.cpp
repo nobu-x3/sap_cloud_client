@@ -67,7 +67,7 @@ namespace sap::client {
         // Sidebar container
         m_Sidebar = new QFrame(this);
         m_Sidebar->setObjectName("sidebar");
-        m_Sidebar->setFixedWidth(m_SidebarExpandedWidth);
+        m_Sidebar->setFixedWidth(m_SidebarExpandedWidth + 24); // +24 for collapse button
 
         auto* sidebar_outer_layout = new QHBoxLayout(m_Sidebar);
         sidebar_outer_layout->setContentsMargins(0, 0, 0, 0);
@@ -112,18 +112,20 @@ namespace sap::client {
         connect(m_SettingsBtn, &QToolButton::clicked, this, &MainWindow::show_settings);
         sidebar_layout->addWidget(m_SettingsBtn);
 
-        // Collapse button at the very bottom
+        sidebar_outer_layout->addWidget(m_SidebarContent);
+
+        // Collapse button - outside sidebar content so it remains visible when collapsed
         m_CollapseBtn = new QToolButton(this);
         m_CollapseBtn->setIcon(QIcon(":/icons/chevron_left.svg"));
         m_CollapseBtn->setIconSize(QSize(20, 20));
-        m_CollapseBtn->setFixedSize(72, 32);
+        m_CollapseBtn->setFixedSize(24, 48);
         m_CollapseBtn->setCursor(Qt::PointingHandCursor);
         m_CollapseBtn->setToolTip("Collapse sidebar");
         m_CollapseBtn->setStyleSheet(R"(
         QToolButton {
-            background-color: transparent;
+            background-color: #22223a;
             border: none;
-            border-radius: 6px;
+            border-radius: 4px;
             color: #8888aa;
         }
         QToolButton:hover {
@@ -131,9 +133,7 @@ namespace sap::client {
         }
     )");
         connect(m_CollapseBtn, &QToolButton::clicked, this, &MainWindow::toggle_sidebar);
-        sidebar_layout->addWidget(m_CollapseBtn);
-
-        sidebar_outer_layout->addWidget(m_SidebarContent);
+        sidebar_outer_layout->addWidget(m_CollapseBtn);
 
         // Main content area
         auto* content_container = new QWidget(this);
@@ -160,12 +160,12 @@ namespace sap::client {
         m_SidebarCollapsed = !m_SidebarCollapsed;
 
         if (m_SidebarCollapsed) {
-            m_Sidebar->setFixedWidth(m_SidebarCollapsedWidth);
             m_SidebarContent->hide();
+            m_Sidebar->setFixedWidth(m_SidebarCollapsedWidth + 24); // Just the collapse button width
             m_CollapseBtn->setIcon(QIcon(":/icons/chevron_right.svg"));
             m_CollapseBtn->setToolTip("Expand sidebar");
         } else {
-            m_Sidebar->setFixedWidth(m_SidebarExpandedWidth);
+            m_Sidebar->setFixedWidth(m_SidebarExpandedWidth + 24);
             m_SidebarContent->show();
             m_CollapseBtn->setIcon(QIcon(":/icons/chevron_left.svg"));
             m_CollapseBtn->setToolTip("Collapse sidebar");
@@ -199,37 +199,46 @@ namespace sap::client {
         QDialog dialog(this);
         dialog.setWindowTitle("Settings");
         dialog.setStyleSheet(get_dark_stylesheet());
-        dialog.setFixedSize(500, 300);
+
+        // Responsive sizing - fit to screen on mobile
+        QSize screen_size = this->size();
+        int dialog_width = qMin(500, screen_size.width() - 32);
+        int dialog_height = qMin(350, screen_size.height() - 64);
+        dialog.setMinimumSize(280, 250);
+        dialog.resize(dialog_width, dialog_height);
 
         auto* layout = new QVBoxLayout(&dialog);
-        layout->setContentsMargins(24, 24, 24, 24);
-        layout->setSpacing(20);
+        layout->setContentsMargins(16, 16, 16, 16);
+        layout->setSpacing(16);
 
         auto* title = new QLabel("Settings", &dialog);
-        title->setStyleSheet("font-size: 20px; font-weight: 700; color: #ffffff;");
+        title->setStyleSheet("font-size: 18px; font-weight: 700; color: #ffffff;");
         layout->addWidget(title);
 
-        auto* form = new QFormLayout();
-        form->setSpacing(16);
-        form->setLabelAlignment(Qt::AlignRight);
+        // Use vertical layout for narrow screens
+        auto* form = new QVBoxLayout();
+        form->setSpacing(12);
 
         // Server URL
+        auto* server_label = new QLabel("Server URL", &dialog);
+        server_label->setStyleSheet("color: #8888aa; font-size: 12px;");
+        form->addWidget(server_label);
+
         auto* server_input = new QLineEdit(&dialog);
         server_input->setText(settings.value("serverUrl", "http://localhost:8080").toString());
         server_input->setPlaceholderText("https://example.com:8080");
-        form->addRow("Server URL:", server_input);
+        form->addWidget(server_input);
 
         // SSH Key selection
-        auto* ssh_container = new QWidget(&dialog);
-        auto* ssh_layout = new QHBoxLayout(ssh_container);
-        ssh_layout->setContentsMargins(0, 0, 0, 0);
-        ssh_layout->setSpacing(8);
+        auto* ssh_label = new QLabel("SSH Key", &dialog);
+        ssh_label->setStyleSheet("color: #8888aa; font-size: 12px;");
+        form->addWidget(ssh_label);
 
         auto* ssh_input = new QLineEdit(&dialog);
         ssh_input->setText(settings.value("sshKeyPath", "").toString());
         ssh_input->setPlaceholderText("~/.ssh/id_rsa");
         ssh_input->setReadOnly(true);
-        ssh_layout->addWidget(ssh_input, 1);
+        form->addWidget(ssh_input);
 
         auto* browse_btn = new QPushButton("Browse...", &dialog);
         browse_btn->setObjectName("secondary_button");
@@ -241,28 +250,27 @@ namespace sap::client {
                 ssh_input->setText(path);
             }
         });
-        ssh_layout->addWidget(browse_btn);
-
-        form->addRow("SSH Key:", ssh_container);
+        form->addWidget(browse_btn);
 
         layout->addLayout(form);
         layout->addStretch();
 
-        // Buttons
-        auto* buttons = new QDialogButtonBox(&dialog);
-        auto* save_btn = new QPushButton("Save", &dialog);
-        save_btn->setCursor(Qt::PointingHandCursor);
+        // Buttons - horizontal layout
+        auto* button_layout = new QHBoxLayout();
+        button_layout->setSpacing(8);
+
         auto* cancel_btn = new QPushButton("Cancel", &dialog);
         cancel_btn->setObjectName("secondary_button");
         cancel_btn->setCursor(Qt::PointingHandCursor);
+        connect(cancel_btn, &QPushButton::clicked, &dialog, &QDialog::reject);
+        button_layout->addWidget(cancel_btn);
 
-        buttons->addButton(save_btn, QDialogButtonBox::AcceptRole);
-        buttons->addButton(cancel_btn, QDialogButtonBox::RejectRole);
+        auto* save_btn = new QPushButton("Save", &dialog);
+        save_btn->setCursor(Qt::PointingHandCursor);
+        connect(save_btn, &QPushButton::clicked, &dialog, &QDialog::accept);
+        button_layout->addWidget(save_btn);
 
-        connect(buttons, &QDialogButtonBox::accepted, &dialog, &QDialog::accept);
-        connect(buttons, &QDialogButtonBox::rejected, &dialog, &QDialog::reject);
-
-        layout->addWidget(buttons);
+        layout->addLayout(button_layout);
 
         if (dialog.exec() == QDialog::Accepted) {
             QString url = server_input->text().trimmed();

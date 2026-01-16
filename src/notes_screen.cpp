@@ -235,7 +235,7 @@ namespace sap::client {
         // Editor stack (editor/preview)
         m_EditorStack = new QStackedWidget(this);
 
-        m_Editor = new QTextEdit(this);
+        m_Editor = new SmartTextEdit(this);
         m_Editor->setPlaceholderText("Start writing...\n\nSupported Markdown:\n• # Headings\n• **bold** and *italic*\n• `code` and ```code "
                                      "blocks```\n• - Lists\n• > Blockquotes\n• [links](url)\n• --- horizontal rules");
         m_Editor->setAcceptRichText(false);

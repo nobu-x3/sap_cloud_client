@@ -116,6 +116,7 @@ set(SOURCES
     src/drive_screen.cpp
     src/notes_screen.cpp
     src/ssh_auth.cpp
+    src/smart_text_edit.cpp
 )
 
 set(HEADERS
@@ -125,6 +126,7 @@ set(HEADERS
     include/sap_cloud_client/drive_screen.h
     include/sap_cloud_client/notes_screen.h
     include/sap_cloud_client/ssh_auth.h
+    include/sap_cloud_client/smart_text_edit.h
 )
 
 set(RESOURCES

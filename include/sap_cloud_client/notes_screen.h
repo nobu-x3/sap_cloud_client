@@ -8,10 +8,10 @@
 #include <QSplitter>
 #include <QStackedWidget>
 #include <QTextBrowser>
-#include <QTextEdit>
 #include <QTimer>
 #include <QWidget>
 #include "api_client.h"
+#include "smart_text_edit.h"
 
 namespace sap::client {
 
@@ -57,7 +57,7 @@ namespace sap::client {
         QWidget* m_EditorContainer;
         QWidget* m_EmptyState;
         QLineEdit* m_Title;
-        QTextEdit* m_Editor;
+        SmartTextEdit* m_Editor;
         QTextBrowser* m_Preview;
         QStackedWidget* m_EditorStack;
         QPushButton* m_SaveBtn;

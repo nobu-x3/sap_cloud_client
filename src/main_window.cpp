@@ -283,12 +283,8 @@ namespace sap::client {
 
             settings.setValue("sshKeyPath", ssh_path);
 
-            QMessageBox msg(this);
-            msg.setWindowTitle("Settings");
-            msg.setText("Settings saved successfully.");
-            msg.setIcon(QMessageBox::Information);
-            msg.setStyleSheet(get_dark_stylesheet());
-            msg.exec();
+            // Use statusBar instead of QMessageBox to avoid Android OpenGL deadlock
+            statusBar()->showMessage("Settings saved successfully", 3000);
         }
 
         update_nav_state();
